@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>소개팅 매칭</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>상대방이 마음에 드시나요?</h1>
+        <div class="buttons">
+            <button onclick="submitChoice('O')">⭕</button>
+            <button onclick="submitChoice('X')">❌</button>
+        </div>
+        <p id="result"></p>
+    </div>
+
+    <script>
+        function submitChoice(choice) {
+            fetch('/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ choice: choice })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'waiting') {
+                    document.getElementById('result').innerText = "상대방의 선택을 기다리는 중입니다...";
+                } else if (data.status === 'match') {
+                    document.getElementById('result').innerText = "🎉 두 분이 모두 동의했습니다!";
+                } else {
+                    document.getElementById('result').innerText = "😢 아쉽게도 소개팅이 마무리되었습니다.";
+                }
+            });
+        }
+    </script>
+</body>
+</html>
