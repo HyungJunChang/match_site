@@ -14,27 +14,23 @@
         </div>
         <p id="result"></p>
     </div>
+        <script>
+        const user_id = Math.floor(Math.random() * 1000000); // 테스트용 랜덤 ID
 
-    <script>
         function submitChoice(choice) {
             fetch('/submit', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ choice: choice })
+                body: JSON.stringify({ user_id: user_id, choice: choice })
             })
             .then(response => response.json())
             .then(data => {
-                if (data.status === 'waiting') {
-                    document.getElementById('result').innerText = "상대방의 선택을 기다리는 중입니다...";
-                } else if (data.status === 'match') {
-                    document.getElementById('result').innerText = "🎉 두 분이 모두 동의했습니다!";
-                } else {
-                    document.getElementById('result').innerText = "😢 아쉽게도 소개팅이 마무리되었습니다.";
-                }
+                document.getElementById('result').innerText = data.message;
             });
         }
     </script>
+
 </body>
 </html>

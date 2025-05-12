@@ -1,7 +1,9 @@
 from flask import Flask, render_template, request, jsonify
+from db import init_db, insert_choice
+from datetime import datetime
 
 app = Flask(__name__)
-choices = []
+init_db()
 
 @app.route('/')
 def index():
@@ -9,16 +11,17 @@ def index():
 
 @app.route('/submit', methods=['POST'])
 def submit():
-    global choices
     data = request.get_json()
-    choices.append(data['choice'])
+    user_id = request.remote_addr  # IP로 간단히 식별
+    choice = data['choice']
+    today = datetime.now().strftime('%Y-%m-%d')
 
-    if len(choices) < 2:
-        return jsonify({'status': 'waiting'})
-    else:
-        result = 'match' if choices[0] == 'O' and choices[1] == 'O' else 'no_match'
-        choices = []  # 초기화
-        return jsonify({'status': result})
+    success = insert_choice(user_id, choice)
+    if not success:
+        return jsonify({'status': 'already_chosen'})
+
+    # 여기서는 간단히 "match" 상태만 리턴
+    return jsonify({'status': 'waiting'})  # 예시용
 
 if __name__ == '__main__':
     app.run(debug=True)
